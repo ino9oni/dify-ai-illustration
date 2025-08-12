@@ -8,7 +8,7 @@ ai-illustration on Dify
   - [TOC](#toc)
   - [このページ](#このページ)
   - [背景](#背景)
-  - [公式のリンク(≒NotebookLMに入れると便利)](#公式のリンクnotebooklmに入れると便利)
+  - [公式のリンク(≒NotebookLMに入れて調査に利用すると便利)](#公式のリンクnotebooklmに入れて調査に利用すると便利)
   - [前提](#前提)
   - [基礎知識](#基礎知識)
   - [ざっくりアーキテクチャ](#ざっくりアーキテクチャ)
@@ -33,7 +33,7 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
 - Difyが提供しているpublicなプラグインのStable Diffusioを用いて、AI画像生成を行っている
 - しかし、デフォルトの状態でやりたいことができない、またはやりかたがわからないなどがあったため、備忘のため記録しておく
 
-## 公式のリンク(≒NotebookLMに入れると便利)
+## 公式のリンク(≒NotebookLMに入れて調査に利用すると便利)
 
 - https://docs.dify.ai/ja-jp/introduction
 - https://docs.dify.ai/plugin-dev-ja/0211-getting-started-dify-tool
@@ -55,8 +55,18 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
   llama3.3:latest
   ```
 - local画像生成にはstable diffusionを利用
-- d:\dify に docker版の git cloneしてある状態
-- (dify plugin cliについても改めて記載)
+- stable diffusionのバージョンは以下
+  ```plain
+  version: v1.8.0
+  python: 3.10.6
+  torch: 2.1.2+cu121
+  xformers: N/A
+  gradio: 3.41.2
+  checkpoint: 7adffa28d4
+  ```
+- d:\dify に docker版の git cloneして/docker compose up -dしてある状態
+- dify cliもインストールしてある状態
+  (dify plugin cliについては後日記載)
 - HW
   - GPUはNVIDIA GeForce RTX 4070を利用
   - CPUはIntel(R) Core(TM) i7-14700F、2100 Mhz、20 cores、28 logical processors
@@ -182,7 +192,7 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
     ```
 #### 課題の恒久対応
 
-＜pluginの作成・開発＞
+既存にはないpluginの作成・開発を行う
 
 ### Pluginの構造
 
@@ -215,50 +225,55 @@ Pluginのフォルダ構成は以下
 ### Stable Diffusion Pluginの作成方法
 
 公式情報に基づき、一部トライアンドエラーした内容も記載。
-若干時間の関係上省略気味で記載。後日詳細化したい（できたら…
+若干時間の関係上省略気味で記載。後日詳細化する。
+一応pluginが動作したので、その手順をいかに記す。
+手っ取り早く修正後のpluginを利用したい人は、リポジトリからdifypkgファイルをダウンロードしてインストールください。
 
 1. 適当なフォルダを作成し、そこへ移動（例：d:\dify-plugin\）
 2. dify cliをダウンロードする
   d:\dify-plugin\dify.exe
-3. コマンドが動作するか確認
+1. コマンドが動作するか確認
 ```powershell
 ./dify --help
 Dify is a cli tool to help you develop your Dify projects.
 python --version Python 3.10.6 #
 ```
-4. 「sampleplugin」のガワを作成する
+1. 「sampleplugin」のガワを作成する
 ```powershell
 cd d:\dify-plugin\
 dify init sampleplugin
 dir # sampleplugin があることを確認
 ```
-5. GUIDE.mdを適当に編集する
-6. manifest.yamlを適当に編集する
-7. requirements.txtを適当に編集する
+1. GUIDE.mdを適当に編集する
+2. manifest.yamlを適当に編集する
+3. requirements.txtを適当に編集する
    1. tools/<pluginname>.pyでさせたい処理にあわせて追加が必要であれば追加する
-8. provider配下を編集する
-   1. sampleplugin.yaml　で　UI
-9.  tools配下を編集する
-10. LocalDifyのログイン後、プラグインのページに移動する
-11. プラグインのインストール>difypkgファイルを選択
-12. インストール開始、終了まで待つ
+4. venvで.envを作成する
+5. provider配下を編集する
+   1. sampleplugin.yaml
+   2. sampleplugin.py
+6.  tools配下を編集する
+7. provider配下を編集する
+   1. sampleplugin.yaml
+   2. sampleplugin.py
+8.  LocalDifyのログイン後、プラグインのページに移動する
+9.  プラグインのインストール>difypkgファイルを選択
+10. インストール開始、終了まで待つ
 ![](img/installed.png)
-13. インストール終了後当該pluginを選択
-14. pluginの包括的認証を行う（自分の場合は以下）
+1.   インストール終了後当該pluginを選択
+2.   pluginの包括的認証を行う（自分の場合は以下）
     1.  BaseURL
     [http://host.docker.internal:7860](http://host.docker.internal:7860/)
     2. Model
     pixelArtDiffusionXL_spriteShaper
-15. 認証済みであることを確認する
+3.   認証済みであることを確認する
     ![](img/original-plugin.png)
-16. スタジオ＞ワークフロー＞ツール＞プラグイン＞samplepluginを選択するとブロックが表示される
+4.   スタジオ＞ワークフロー＞ツール＞プラグイン＞samplepluginを選択するとブロックが表示される
     ![](img/variable-height-width.png)
-
-以上
 
 ### Plugin作成のコツや注意点
 
-- 公式のコードを参考にして作成するとスムーズ
+- 公式のコードを参考にして作成するとスムーズにできた
 - pluginの設置やインストール設定でエラーになった場合は、docker logsでplugin_daemonのインスタンスのログを確認
   ```plain
   docker logs 218a
