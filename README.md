@@ -8,7 +8,7 @@ ai-illustration on Dify
   - [TOC](#toc)
   - [このページ](#このページ)
   - [背景](#背景)
-  - [公式のリンク(≒NotebookLMに入れて調査に利用すると便利)](#公式のリンクnotebooklmに入れて調査に利用すると便利)
+  - [公式のリンク](#公式のリンク)
   - [前提](#前提)
   - [基礎知識](#基礎知識)
   - [ざっくりアーキテクチャ](#ざっくりアーキテクチャ)
@@ -27,19 +27,24 @@ ai-illustration on Dify
 
 ## このページ
 
-DifyとLocal LLMを利用したAI画像生成のワークフローに関するカスタマイズの記録のためのページ
+- DifyとLocal LLMを利用したAI画像生成のワークフローに関するカスタマイズの記録のためのページ
+- DifyでPluginを作成する方法を自分なりに整理して公開したページ
 
 ## 背景
 
 - Difyが提供しているpublicなプラグインのStable Diffusioを用いて、AI画像生成を行っている
-- しかし、デフォルトの状態でやりたいことができない、またはやりかたがわからないなどがあったため、一部pluginを作成したので、その備忘のため記録しておく
+- しかし、publicなプラグインのデフォルトでは、AI画像生成必要なことが一部できないケースがあった
+- またPluginなどの情報が限定的なため、自分でPluginをいじる中で分かってきたことなどの情報が蓄積されてきたため、備忘として残しておきたいと考えた
 
-## 公式のリンク(≒NotebookLMに入れて調査に利用すると便利)
+## 公式のリンク
 
 - https://docs.dify.ai/ja-jp/introduction
 - https://docs.dify.ai/plugin-dev-ja/0211-getting-started-dify-tool
 - https://github.com/langgenius/dify/
 - https://github.com/langgenius/dify-plugin-daemon
+
+> [!TIP]
+> NotebookLMのノートのソースに入れて不明点の質問などの調査に利用すると便利
 
 ## 前提
 
@@ -48,14 +53,14 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
 - docker版のDifyを利用
 - Dify最新版(1.x)を利用
 - localllmには、ollamaとその上で動くモデルを利用
-- ollamaはwindows版最新を利用（gpt-ossも動作するモデル）
-  - ollamaにインストールされているモデルは以下（画像生成に使う者だけ抜粋＋一部諸般の事情で割愛…察して…）
+- ollamaはwindows版最新を利用（gpt-ossも動作するバージョン）
+  - ollamaにインストールされているモデルは以下
   ```powershell
   gpt-oss:20b
   gemma3:12b
   llama3.3:latest
   ```
-- local画像生成にはstable diffusionを利用
+- local画像生成にはstable diffusion automatic Web UIを利用
 - stable diffusionのバージョンは以下
   ```plain
   version: v1.8.0
@@ -65,8 +70,9 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
   gradio: 3.41.2
   checkpoint: 7adffa28d4
   ```
-- d:\dify に docker版の git cloneして/docker compose up -dしてある状態
-- dify cliもインストールしてある状態
+- stablediffusionとoolamaはそれぞれ普通に単独で動作しているものとします
+- docker版の git cloneして、docker compose up -dしてある状態
+- difyのcliもインストールしてある状態
   (dify plugin cliについては後日記載)
 - HW
   - GPUはNVIDIA GeForce RTX 4070を利用
@@ -194,11 +200,12 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
     ```
 #### 課題の恒久対応
 
-既存にはないpluginの作成・開発を行う
+既存のPluginの編集・加工は難しいため
+既存にはない個別のPluginの作成・開発を行う
 
 ### Plugin本体
 
-![mystablediffusion.difypkg](mystablediffusion.difypkg)
+[mystablediffusion.difypkg](https://github.com/ino9oni/dify-ai-illustration/blob/main/mystablediffusion.difypkg)
 
 ### Pluginの構造
 
@@ -237,8 +244,9 @@ Pluginのフォルダ構成は以下
 
 1. 適当なフォルダを作成し、そこへ移動（例：d:\dify-plugin\）
 2. dify cliをダウンロードする
+  [dify cli download](https://github.com/langgenius/dify-plugin-daemon/releases)
   d:\dify-plugin\dify.exe
-1. コマンドが動作するか確認
+3. コマンドが動作するか確認
 ```powershell
 ./dify --help
 Dify is a cli tool to help you develop your Dify projects.
@@ -270,7 +278,7 @@ dir # sampleplugin があることを確認
 9.  LocalDifyのログイン後、プラグインのページに移動する
 10. プラグインのインストール>difypkgファイルを選択
 11. インストール開始、終了まで待つ
-![](img/installed.png)
+[](img/installed.png)
 1.   インストール終了後当該pluginを選択
 2.   pluginの包括的認証を行う（自分の場合は以下）
     1.  BaseURL
@@ -326,8 +334,9 @@ dir # sampleplugin があることを確認
 
 - plugin_deamonの効率的なdebug方法
   - いちいちdifyにdifypkgファイルをアップロードしてデプロイしないといけないが手間がかかる。ホットなコード上で確認する方法がないか
-  - plugin_daemonのデプロイ後の挙動のログ上での確認
+  - ~~plugin_daemonのデプロイ後の挙動のログ上での確認~~
     - 何処デプロイから呼び出しまでのログが出力されるのか
+    - [解決] docker logs <<daemon-service-containerのid>> -f でエラーの発生状況を補足できたので解決
 - Difyのdbの中身
   - 何を保持して何を保持していないのか
 - plugin_daemon以外の責務
