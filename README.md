@@ -16,6 +16,7 @@ ai-illustration on Dify
     - [課題感](#課題感)
       - [課題の一次回避](#課題の一次回避)
       - [課題の恒久対応](#課題の恒久対応)
+    - [Plugin本体](#plugin本体)
     - [Pluginの構造](#pluginの構造)
     - [Stable Diffusion Pluginの作成方法](#stable-diffusion-pluginの作成方法)
     - [Plugin作成のコツや注意点](#plugin作成のコツや注意点)
@@ -31,7 +32,7 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
 ## 背景
 
 - Difyが提供しているpublicなプラグインのStable Diffusioを用いて、AI画像生成を行っている
-- しかし、デフォルトの状態でやりたいことができない、またはやりかたがわからないなどがあったため、備忘のため記録しておく
+- しかし、デフォルトの状態でやりたいことができない、またはやりかたがわからないなどがあったため、一部pluginを作成したので、その備忘のため記録しておく
 
 ## 公式のリンク(≒NotebookLMに入れて調査に利用すると便利)
 
@@ -72,6 +73,7 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
   - CPUはIntel(R) Core(TM) i7-14700F、2100 Mhz、20 cores、28 logical processors
 
 ## 基礎知識
+
 - difyをdockerで動作させると「localhost（127.0.0.1）」へのアクセスでは自分自身のコンテナに疎通しがちなため、ホスト側のlocalを示す「host.docker.internal」を利用
 - difyの1.0.xと0.x.x系はアーキテクチャが全く違う。基本1.0.x系を利用するのが良いと思います。
     > [!WARNING]
@@ -194,6 +196,10 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
 
 既存にはないpluginの作成・開発を行う
 
+### Plugin本体
+
+![mystablediffusion.difypkg](mystablediffusion.difypkg)
+
 ### Pluginの構造
 
 Pluginのフォルダ構成は以下
@@ -256,9 +262,14 @@ dir # sampleplugin があることを確認
 7. provider配下を編集する
    1. sampleplugin.yaml
    2. sampleplugin.py
-8.  LocalDifyのログイン後、プラグインのページに移動する
-9.  プラグインのインストール>difypkgファイルを選択
-10. インストール開始、終了まで待つ
+8. packge化する
+   ```
+   cd samplepluginのあるフォルダ
+   ./dify.exe plugin package ./sampleplugin
+   ```
+9.  LocalDifyのログイン後、プラグインのページに移動する
+10. プラグインのインストール>difypkgファイルを選択
+11. インストール開始、終了まで待つ
 ![](img/installed.png)
 1.   インストール終了後当該pluginを選択
 2.   pluginの包括的認証を行う（自分の場合は以下）
