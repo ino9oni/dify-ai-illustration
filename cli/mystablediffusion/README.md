@@ -18,7 +18,6 @@ A improved interface to access the Stable Diffusion WebUI API.
 
 - [ ] Timeout number implmentation
 - [ ] Not to use Web API, directly call stable diffusion python code because everything parameter we want to set on Automatic Web UI
-- [ ] 
 
 ### Requests or Issues
 
