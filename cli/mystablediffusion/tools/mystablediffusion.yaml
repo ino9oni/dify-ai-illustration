@@ -1,0 +1,119 @@
+description:
+  human:
+    en_US: A tool for generating images which can be deployed locally, you can use
+      improved stable-diffusion-webui to deploy it.
+    pt_BR: A tool for generating images which can be deployed locally, you can use
+      improved stable-diffusion-webui to deploy it.
+  llm: draw the image you want based on your prompt.
+
+extra:
+  python:
+    source: tools/mystablediffusion.py
+
+identity:
+  name: mystablediffusion is forked from langgenius stablediffusion plugin
+  author: ino9dev
+  label:
+    en_US: Stable Diffusion WebUI
+    pt_BR: Stable Diffusion WebUI
+
+parameters:
+- form: llm
+  name: prompt
+  required: true
+  type: string
+  human_description:
+    en_US: Image prompt
+    pt_BR: Image prompt
+  label:
+    en_US: Image Prompt
+    pt_BR: Image Prompt
+  llm_description: Image prompt of Stable Diffusion
+
+- default: "pixelArtDiffusionXL_spriteShaper"
+  name: model
+  form: form
+  type: string
+  required: false
+  human_description:
+    en_US: Model name
+    pt_BR: Model name
+
+  label:
+    en_US: Model name
+    pt_BR: Model name
+
+- default: 35
+  name: steps
+  form: form
+  type: number
+  required: false
+  human_description:
+    en_US: Steps
+    pt_BR: Steps
+  label:
+    en_US: Steps
+    pt_BR: Steps
+
+- default: 1024
+  form: llm
+  name: width
+  type: string
+  required: false
+  human_description:
+    en_US: Width
+    pt_BR: Width
+  label:
+    en_US: Width
+    pt_BR: Width
+
+- default: 1024
+  name: height
+  form: llm
+  type: string
+  required: false
+  human_description:
+    en_US: Height
+    pt_BR: Height
+  label:
+    en_US: Height
+    pt_BR: Height
+
+- default: "DPM++ 3M SDE Exponential"
+  name: sampleingmethod
+  form: form
+  type: string
+  required: false
+  human_description:
+    en_US: Sampleing Method
+    pt_BR: Sampleing Method
+  label:
+    en_US: Sampleing Method
+    pt_BR: Sampleing Method
+
+- default: 3.5
+  name: cfgscale
+  form: form
+  type: string
+  required: false
+  human_description:
+    en_US: CFG Scale
+    pt_BR: CFG Scale
+  label:
+    en_US: CFG Scale
+    pt_BR: CFG Scale
+
+- default: "(EasyNegativeV2:1.5),(bad-hands-5:1.5),(5-funny-looking-fingers:1.5),(bad quality:1.3),(worst quality:1.3), signature, watermark, messy hair,  blurry, nude, big breasts, nipples, logo, text, label, medical mask, multiple_girls, multiple_ladies"
+  name: negative_prompt
+  form: form
+  type: string
+  required: false
+  human_description:
+    en_US: Negative prompt
+    pt_BR: Negative prompt
+    zh_Hans: Negative prompt
+  label:
+    en_US: Negative prompt
+    pt_BR: Negative prompt
+    zh_Hans: Negative prompt
+

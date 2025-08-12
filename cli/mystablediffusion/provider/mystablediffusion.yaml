@@ -1,0 +1,42 @@
+identity:
+  author: ino9dev
+  name: mystablediffusion
+  label:
+    en_US: mystablediffusion
+    zh_Hans: mystablediffusion
+    pt_BR: mystablediffusion
+  description:
+    en_US: stablediffusion plugin for me
+    zh_Hans: stablediffusion plugin for me
+    pt_BR: stablediffusion plugin for me
+  icon: icon.svg
+  tags:
+  - image
+tools:
+  - tools/mystablediffusion.yaml
+extra:
+  python:
+    source: provider/mystablediffusion.py
+credentials_for_provider:
+  base_url:
+    label:
+      en_US: Base URL
+      pt_BR: Base URL
+    placeholder:
+      en_US: Please input your StableDiffusion server's Base URL
+      pt_BR: Please input your StableDiffusion server's Base URL
+    required: true
+    type: text-input
+  model:
+    help:
+      en_US: The model name of the StableDiffusion server
+      pt_BR: The model name of the StableDiffusion server
+    label:
+      en_US: Model
+      pt_BR: Model
+    placeholder:
+      en_US: Please input your model
+      pt_BR: Please input your model
+    required: true
+    type: text-input
+    url: https://docs.dify.ai/tutorials/tool-configuration/stable-diffusion

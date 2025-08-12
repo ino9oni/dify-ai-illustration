@@ -17,9 +17,11 @@ ai-illustration on Dify
       - [課題の一次回避](#課題の一次回避)
       - [課題の恒久対応](#課題の恒久対応)
     - [Pluginの構造](#pluginの構造)
-        - [Stable Diffusion Pluginの作成方法](#stable-diffusion-pluginの作成方法)
+    - [Stable Diffusion Pluginの作成方法](#stable-diffusion-pluginの作成方法)
+    - [Plugin作成のコツや注意点](#plugin作成のコツや注意点)
   - [LLM block \& Agent](#llm-block--agent)
   - [MCP Server](#mcp-server)
+  - [よくわかってないことリスト](#よくわかってないことリスト)
 
 
 ## このページ
@@ -60,6 +62,7 @@ DifyとLocal LLMを利用したAI画像生成のワークフローに関する�
   - CPUはIntel(R) Core(TM) i7-14700F、2100 Mhz、20 cores、28 logical processors
 
 ## 基礎知識
+- difyをdockerで動作させると「localhost（127.0.0.1）」へのアクセスでは自分自身のコンテナに疎通しがちなため、ホスト側のlocalを示す「host.docker.internal」を利用
 - difyの1.0.xと0.x.x系はアーキテクチャが全く違う。基本1.0.x系を利用するのが良いと思います。
     > [!WARNING]
     昔にインストールしたものは0.x.x系だったりするのでドキュメントやファイルパスが結構違うので古いものを利用していると難儀する
@@ -209,11 +212,71 @@ Pluginのフォルダ構成は以下
 |PRIVACY.md|telegraph/PRIVACY.md|プラグインを公式マーケットプレイスに公開する場合に必要となる、プライバシーポリシーの説明ファイル|
 
 
-##### Stable Diffusion Pluginの作成方法
+### Stable Diffusion Pluginの作成方法
 
-公式情報に基づき、一部トライアンドエラーした内容も記載予定。
+公式情報に基づき、一部トライアンドエラーした内容も記載。
+若干時間の関係上省略気味で記載。後日詳細化したい（できたら…
 
-（いつか書く、ASAP試してみる）
+1. 適当なフォルダを作成し、そこへ移動（例：d:\dify-plugin\）
+2. dify cliをダウンロードする
+  d:\dify-plugin\dify.exe
+3. コマンドが動作するか確認
+```powershell
+./dify --help
+Dify is a cli tool to help you develop your Dify projects.
+python --version Python 3.10.6 #
+```
+4. 「sampleplugin」のガワを作成する
+```powershell
+cd d:\dify-plugin\
+dify init sampleplugin
+dir # sampleplugin があることを確認
+```
+5. GUIDE.mdを適当に編集する
+6. manifest.yamlを適当に編集する
+7. requirements.txtを適当に編集する
+   1. tools/<pluginname>.pyでさせたい処理にあわせて追加が必要であれば追加する
+8. provider配下を編集する
+   1. sampleplugin.yaml　で　UI
+9.  tools配下を編集する
+10. LocalDifyのログイン後、プラグインのページに移動する
+11. プラグインのインストール>difypkgファイルを選択
+12. インストール開始、終了まで待つ
+![](img/installed.png)
+13. インストール終了後当該pluginを選択
+14. pluginの包括的認証を行う（自分の場合は以下）
+    1.  BaseURL
+    [http://host.docker.internal:7860](http://host.docker.internal:7860/)
+    2. Model
+    pixelArtDiffusionXL_spriteShaper
+15. 認証済みであることを確認する
+    ![](img/original-plugin.png)
+16. スタジオ＞ワークフロー＞ツール＞プラグイン＞samplepluginを選択するとブロックが表示される
+    ![](img/variable-height-width.png)
+
+以上
+
+### Plugin作成のコツや注意点
+
+- 公式のコードを参考にして作成するとスムーズ
+- pluginの設置やインストール設定でエラーになった場合は、docker logsでplugin_daemonのインスタンスのログを確認
+  ```plain
+  docker logs 218a
+  2025/08/12 06:21:32 run.go:132: [ERROR]plugin xxxxxx/mystablediffusion:0.0.1 exited with error: exit status 1
+  gin/core/utils/class_loader.py", line 34, in import_module_from_sou    spec.loader.exec_module(module)
+
+    File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+
+    File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+
+    File "/app/storage/cwd/xxxxxx/mystablediffusion-0.0.1@9f2ec41945115e40531565d275a20bc3872d3c126fc589cc0c764b9046eda800/provider/mystablediffusion.py", line 2, in <module>
+
+      from tools.mystablediffusion import MystableDiffusionTool      
+
+  ImportError: cannot import name 'MystableDiffusionTool' from 'tools.mystablediffusion' (/app/storage/cwd/xxxxxx/mystablediffusion-0.0.1@9f2ec41945115e40531565d275a20bc3872d3c126fc589cc0c764b9046eda800/tools/mystablediffusion.py). Did you mean: 'MystablediffusionTool'?
+  ```
+- GUIを定義する欄でformのタイプをllmにしないと変数が使えない
+  単にtype: stringにするだけだと文字列の入力しかできないが、あらかじめ定義されたフォームで「llm」を使えばテキスト入力＋変数利用可能なフォームが生成される
 
 ## LLM block & Agent
 
@@ -233,3 +296,35 @@ Pluginのフォルダ構成は以下
   - MCP-Serverとして、difyのworkflowを作成し、mcp-serverの設定でworkflowをmcp-serverとして公開する
   - ワークフローでエージェンティックブロックを作成して上記公開にもとづきMCP_SERVER_CONFIGを設定して、MCPサーバを使うように呼び出す
 
+## よくわかってないことリスト
+
+- plugin_deamonの効率的なdebug方法
+  - いちいちdifyにdifypkgファイルをアップロードしてデプロイしないといけないが手間がかかる。ホットなコード上で確認する方法がないか
+  - plugin_daemonのデプロイ後の挙動のログ上での確認
+    - 何処デプロイから呼び出しまでのログが出力されるのか
+- Difyのdbの中身
+  - 何を保持して何を保持していないのか
+- plugin_daemon以外の責務
+  - core
+  - tools
+  - api
+- nginxの責務
+- ssrf何とかの責務
+- ワークフローデザイナと、UI部分のコード
+  - pluginを入れると普通にブロックとして設置できる仕組み
+- SPI、React
+  - リアルタイムレンダリング
+  - 画面がどんどん更新されていくところのコードが難しくてちょっとよくわからない
+  - 理解したいがメインの処理とは違うので後回しになりがち
+- 外部APIの呼び出し
+  - 他のPluginで外部のAPI
+  - 送る内容が微妙なものがあった場合に外部APIはBanされたりしそう＋コストがかかりそう
+- difyのセキュリティモデル
+  - どこで何を暗号化していて、権限の管理設定をしているのか
+  - それを緩めるための、セキュリティポリシーの定義はどこにあるか
+- Difyのバッチ実行
+  - ChatもUI上にバッチ実行がある
+  - あんまり使ったことない
+- Agentic＆gpt-ossによるReasoningモデルの使い方
+  - Final Answer前でレスポンスしてしまう問題
+  - 全部が「あなたのために思考しています」をFinalAnswerとして返却してしまう問題
